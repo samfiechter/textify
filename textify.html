@@ -4,9 +4,14 @@
     <script type="text/javascript">
       var thing;
       function startmeup(){
-	  thing = new textify;
-      )
-      function textify(){
+	  thing = new textify($('body'));
+      }
+      function grey(r,g,b){
+	  return (0.21 * r + 0.72 * g  + 0.07 * b);
+      }
+
+      function textify(c){
+	  $('#chars').setAttribute('crossOrigin', 'anonymous');
 	  var _t = this;
           _t.draw(c);
       }
@@ -31,7 +36,8 @@
               t.srcimg.load(function(){t.process()});
               container.on('paste',function(evt){
                   return(t.handlePaste(evt));
-              });
+	      });
+	      t.process();
           },
           handlePaste : function  (evt) {
               var t = this;
@@ -47,24 +53,33 @@
                   }
               }
           },
-          
-          
+	  getChar:function(n){
+	      var i = n - 32;
+	      var canvas = $('<canvas>');
+
+	      var ctx = canvas[0].getContext('2d');
+	      var w = canvas[0].width = 8;
+	      var h = canvas[0].height= 12;
+	      var ox = 5*w + 3;
+	      var oy = 1*h + 5;
+	      var x = ox + w*(i % 10);
+	      var y = oy + h*(Math.floor(i /10));
+	      ctx.drawImage($('#chars')[0],ox,oy,w,h,x,y,w,h);
+	      return(canvas);
+	  },
+         
           process:function(){
               var t = this;
-              var canvas = $('<canvas>');
-              var w = canvas[0].width = t.srcimg[0].width;
-              var h = canvas[0].height= t.srcimg[0].height;
-              var prog = $('<span>').text("Processing...");
-              t.container.append(prog);
-              t.ctx = canvas[0].getContext('2d');
-              t.ctx.drawImage(t.srcimg[0],0,0);
-              t.image = t.ctx.getImageData(0,0,w,h);  //array [4*w*h] of colors RGBA
-              t.ctx.clearRect ( 0 , 0 ,w,h);
+	      var canvas = t.getChar(64);
+	      var outImg = $('<img>');
+	      outImg[0].src =canvas[0].toDataURL();
+	      t.container.append(outImg);
     
-      }
+	  }
+      };
 
     </script>
     <body onload="startmeup()">
-      <img src="chars.png" display="none">
+      <img src="chars.png" id='chars' style="display:none;">
     </body>
 </html>
