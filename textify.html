@@ -2,8 +2,65 @@
   <head><title>textify</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript">
+      var thing;
       function startmeup(){
-	  
+	  thing = new textify;
+      )
+      function textify(){
+	  var _t = this;
+          _t.draw(c);
+      }
+      
+      textify.prototype={
+	  draw:function(container){
+              var t = this;
+              t.container = container;
+              var input = $('<input>').val(t.distance).change(function(){
+                  t.distance=this.value;
+                  if(''!= t.srcimg[0].src){
+                      t.process();
+                  }
+              });
+              
+              container.append($('<div>').text("Directions:").append(
+                  $('<ul>')
+                      .append($('<li>').text("Paste an image to the page"))
+                      .append($('<li>').text("Wait -- you're processing an image in Javascript..."))
+              ));
+              t.srcimg = $('<img>');
+              t.srcimg.load(function(){t.process()});
+              container.on('paste',function(evt){
+                  return(t.handlePaste(evt));
+              });
+          },
+          handlePaste : function  (evt) {
+              var t = this;
+              var items = evt.originalEvent.clipboardData.items, paste;
+              for (var i in items){
+                  if('file' ==items[i].kind){
+                      var fr = new FileReader();
+		      console.log("Rec'd Image");
+                      fr.onload = function(revt){
+                          t.srcimg[0].src = revt.target.result;
+                      }
+                      fr.readAsDataURL(items[i].getAsFile());
+                  }
+              }
+          },
+          
+          
+          process:function(){
+              var t = this;
+              var canvas = $('<canvas>');
+              var w = canvas[0].width = t.srcimg[0].width;
+              var h = canvas[0].height= t.srcimg[0].height;
+              var prog = $('<span>').text("Processing...");
+              t.container.append(prog);
+              t.ctx = canvas[0].getContext('2d');
+              t.ctx.drawImage(t.srcimg[0],0,0);
+              t.image = t.ctx.getImageData(0,0,w,h);  //array [4*w*h] of colors RGBA
+              t.ctx.clearRect ( 0 , 0 ,w,h);
+    
       }
 
     </script>
