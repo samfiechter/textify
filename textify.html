@@ -11,7 +11,7 @@
       }
 
       function textify(c){
-	  $('#chars').setAttribute('crossOrigin', 'anonymous');
+
 	  var _t = this;
           _t.draw(c);
       }
@@ -56,7 +56,6 @@
 	  getChar:function(n){
 	      var i = n - 32;
 	      var canvas = $('<canvas>');
-
 	      var ctx = canvas[0].getContext('2d');
 	      var w = canvas[0].width = 8;
 	      var h = canvas[0].height= 12;
@@ -74,7 +73,7 @@
 	      var outImg = $('<img>');
 	      outImg[0].src =canvas[0].toDataURL();
 	      t.container.append(outImg);
-    
+	      
 	  }
       };
 
