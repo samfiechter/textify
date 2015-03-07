@@ -4,34 +4,35 @@
     <script type="text/javascript">
       var thing;
       function startmeup(){
-	  thing = new textify($('body'));
+	  $('img#chars')[0].crossOrigin = "Anonymous";
+          thing = new textify($('body'));
       }
       function grey(r,g,b){
-	  return (0.299 * r + 0.587 * g  + 0.114 * b);
+          return (0.299 * r + 0.587 * g  + 0.114 * b);
       }
-
+      
       function textify(c){
-	  var t = this;
-	  for (var i =32;i<127;i++){
-	      t.chars.push(i);
-	  }
-	  t.chars.push(153);
-	  for (var i =162;i<382;i++){
-	      t.chars.push(i);
-	  }
-	  for (var i = 0; i<t.chars.length;i++){
-	      t.chrImg[i]= t.getChar(t.chars[i]);
-	  }
-	  t.draw(c);
+          var t = this;
+          for (var i =32;i<127;i++){
+              t.chars.push(i);
+          }
+          t.chars.push(153);
+          for (var i =162;i<382;i++){
+              t.chars.push(i);
+          }
+          for (var i = 0; i<t.chars.length;i++){
+              t.chrImg[i]= t.getChar(t.chars[i]);
+          }
+          t.draw(c);
       }
       
       textify.prototype={
-	  cols : 80,
-	  charWidth : 8,
-	  charHeight : 13,
-	  chars : [],
-	  chrImg : [],
-	  draw:function(container){
+          cols : 80,
+          charWidth : 8,
+          charHeight : 13,
+          chars : [],
+          chrImg : [],
+          draw:function(container){
               var t = this;
               t.container = container;
               var input = $('<input>').val(t.distance).change(function(){
@@ -47,11 +48,11 @@
                       .append($('<li>').text("Wait -- you're processing an image in Javascript..."))
               ));
               t.srcimg = $('<img>');
-	      t.srcimg.load(function(){t.process()});
-	      t.container.append(t.srcimg);
+              t.srcimg.load(function(){t.process()});
+              t.container.append(t.srcimg);
               container.on('paste',function(evt){
                   return(t.handlePaste(evt));
-	      });
+              });
           },
           handlePaste : function  (evt) {
               var t = this;
@@ -59,86 +60,92 @@
               for (var i in items){
                   if('file' ==items[i].kind){
                       var fr = new FileReader();
-		      console.log("Rec'd Image");
+                      console.log("Rec'd Image");
                       fr.onload = function(revt){
-			  t.srcimg[0].src = revt.target.result;
-
+                          t.srcimg[0].src = revt.target.result;
+                          
                       }
                       fr.readAsDataURL(items[i].getAsFile());
                   }
               }
           },
-	  getChar:function(n){
-	      var t = this;
-	      var i = n - 32;
-	      var canvas = $('<canvas>');
-	      var ctx = canvas[0].getContext('2d');
-	      var w = canvas[0].width  = t.charWidth;
-	      var h = canvas[0].height = t.charHeight;
-	      var ox = (5*w)  ;
-	      var oy = 4;
-	      var x = ox + w*(i % 10);
-	      var y = oy + h*(Math.floor(i /10));
-	      var img = $('img#chars');
-	      ctx.drawImage(img[0],x,y,w,h,0,0,w,h);
-	      var data = ctx.getImageData(0,0,w,h);  //array [4*w*h] of colors RGBA
-	      var greys = new Array();
-	      for (var j =0 ; j < data.data.length; j+=4){
-		  greys[j/4] = (grey(data.data[j],data.data[j+1],data.data[j+2]));
-	      }
-	      return(greys);
-	  },
-	  ErrVal:function(r,c,n,img){
-	      var t =this;
-	      var e =0;
-	      var w = t.charWidth;
-	      var h = t.charHeight;
-	      var nw = t.cols * t.charWidth;
-	      for (var j=0; j<h;j++){
-		  for (var i=0; i < w; i++){
-		      var v = img[ (nw*(j + (r*h))) + (c*w) + i] - t.chrImg[n][(w*j)+i];
-		      e+= (v<0?v*-1:v);
-		  }
-	      }	     
-	      return(e)
-	  },         
-	  process:function(){
-	      var t =this;
-	      var canvas = $('<canvas>');
-	      var ctx = canvas[0].getContext('2d');
-	      var ow = t.srcimg.width();
-	      var oh = t.srcimg.height();
-	      var nw = canvas[0].width = t.cols * t.charWidth;
-	      var nh = canvas[0].height = t.charHeight * Math.floor(((nw/ow)*oh) / t.charHeight);
-	      ctx.drawImage(t.srcimg[0],0,0,ow,oh,0,0,nw,nh);
-	      var data = ctx.getImageData(0,0,nw,nh);
-	      var img = new Array();
-	      for (var i = 0; i < data.data.length; i+=4) {
-		  img[i/4] = (grey(data.data[i],data.data[i+1],data.data[i+2]));
-	      }
-	      var out = '';
-	      for (var r =0;r <  nh/t.charHeight; r++){ //rows
-		  for (var c = 0; c < t.cols; c++){ //cols
-		      var minErr = 9007199254740992; //maxnum
-		      var minIdx =0;
-
-		      for (var i =0; i < t.chars.length; i++){ //char cmp
-			  var err = t.ErrVal(r,c,i,img);
-			  if (minErr > err) {
-			      minErr = err;
-			      minIdx = i;
-			  }
-		      }
-		      console.log('' + r + ', ' + c  + ' is ' + t.chars[minIdx]);
-		      
-		      out += String.fromCharCode(t.chars[minIdx]);
-		  }
-		  out += '\n';
-	      }
-	      t.container.append($('<pre>').text(out));
+          getChar:function(n){
+              var t = this;
+              var i = n - 32;
+              var canvas = $('<canvas>');
+              var ctx = canvas[0].getContext('2d');
+              var w = canvas[0].width  = t.charWidth;
+              var h = canvas[0].height = t.charHeight;
+              var ox = (5*w)  ;
+              var oy = 4;
+              var x = ox + w*(i % 10);
+              var y = oy + h*(Math.floor(i /10));
+              var img = $('img#chars');
+              ctx.drawImage(img[0],x,y,w,h,0,0,w,h);
+              var data = ctx.getImageData(0,0,w,h);  //array [4*w*h] of colors RGBA
+              var greys = new Array();
+              for (var j =0 ; j < data.data.length; j+=4){
+                  greys[j/4] = (grey(data.data[j],data.data[j+1],data.data[j+2]));
+              }
+              return(greys);
+          },
+          ErrVal:function(r,c,n,ox,oy,img){
+              var t =this;
+              var e =0;
+              var w = t.charWidth;
+              var h = t.charHeight;
+              var nw = t.cols * t.charWidth;
+              for (var j=0; j<h;j++){
+                  for (var i=0; i < w; i++){
+                      var v = img[ (nw*(j+oy + (r*h))) + (c*w) + ox + i] - t.chrImg[n][(w*j)+i];
+                      e+= (v<0?v*-1:v);
+                  }
+              }
+              return(e)
+          },
+          process:function(){
+              var t =this;
+              var canvas = $('<canvas>');
+              var ctx = canvas[0].getContext('2d');
+              var ow = t.srcimg.width();
+              var oh = t.srcimg.height();
+              var nw = t.cols * t.charWidth;
+              canvas[0].width = nw +2;
+              var nh =  t.charHeight * Math.floor(((nw/ow)*oh) / t.charHeight);
+              canvas[0].height = nh +2;
+              ctx.drawImage(t.srcimg[0],0,0,ow,oh,1,1,nw,nh);
+              var data = ctx.getImageData(0,0,nw,nh);
+              var img = new Array();
+              for (var i = 0; i < data.data.length; i+=4) {
+                  img[i/4] = (grey(data.data[i],data.data[i+1],data.data[i+2]));
+              }
+              var out = '';
+              for (var r =0;r <  nh/t.charHeight; r++){ //rows
+                  for (var c = 0; c < t.cols; c++){ //cols
+                      var minErr = 9007199254740992; //maxnum
+                      var minIdx =0;
+                      
+                      for (var i =0; i < t.chars.length; i++){ //char cmp
+                          for (var ox = -1; ox < 2; ox++){
+                              for (var oy =-1; oy < 2; oy++){
+                                  var err = t.ErrVal(r,c,i,ox,oy,img);
+                                  if (minErr > err) {
+                                      minErr = err;
+                                      minIdx = i;
+                                  }
+                              }
+                          }
+                      }
+                      console.log('' + r + ', ' + c  + ' is ' + t.chars[minIdx]);
+                      out += String.fromCharCode(t.chars[minIdx]);
+                  }
+                  out += '\n';
+              }
+              t.container.append($('<pre>').text(out));
 	  }
-      };
-
+          
+      }
+      
     </script>
     <body onload="startmeup()">
       <img src="chars.png" id='chars' style="display:none;">
